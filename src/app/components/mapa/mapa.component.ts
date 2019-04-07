@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Lugar } from '../../interfaces/lugar';
+import { HttpClient } from '@angular/common/http';
+import { WebsocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-mapa',
@@ -13,28 +15,16 @@ export class MapaComponent implements OnInit {
   marcadores: google.maps.Marker[] = [];
   infoWindows: google.maps.InfoWindow[] = [];
 
-  lugares: Lugar[] = [
-    {
-      nombre: 'Udemy',
-      lat: 37.784679,
-      lng: -122.395936
-    },
-    {
-      nombre: 'Bahía de San Francisco',
-      lat: 37.798933,
-      lng: -122.377732
-    },
-    {
-      nombre: 'The Palace Hotel',
-      lat: 37.788578,
-      lng: -122.401745
-    }
-  ];
+  lugares: Lugar[] = [];
 
-  constructor() { }
+  constructor(private http: HttpClient, public wsService: WebsocketService) { }
 
   ngOnInit() {
-    this.cargarMapa();
+    this.http.get('http://localhost:5000/mapa').subscribe((lugares: Lugar[]) => {
+      console.log(lugares);
+      this.lugares = lugares;
+      this.cargarMapa();
+    });
     this.escucharSockets();
   }
 
@@ -76,7 +66,8 @@ export class MapaComponent implements OnInit {
       map: this.map,
       animation: google.maps.Animation.DROP,
       position: latLng,
-      draggable: true
+      draggable: true,
+      title: marcador.id
     });
     this.marcadores.push(marker);
     const contenido = `<b>${marcador.nombre}</b>`;
@@ -99,7 +90,8 @@ export class MapaComponent implements OnInit {
       const nuevoMarcador = {
         lat: coors.latLng.lat(),
         lng: coors.latLng.lng(),
-        nombre: marcador.nombre
+        nombre: marcador.nombre,
+        id: marcador.id
       };
       console.log(nuevoMarcador);
       // TODO disparar evento socket para mover el marker
