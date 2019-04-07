@@ -29,7 +29,9 @@ export class MapaComponent implements OnInit {
   }
 
   escucharSockets() {
-    // TODO marcador-nuevo
+    this.wsService.listen('nuevo-marcador').subscribe((marcador: Lugar) => {
+      this.agregarMarcador(marcador);
+    });
 
     // TODO marcador-mover
 
@@ -53,6 +55,7 @@ export class MapaComponent implements OnInit {
       };
       this.agregarMarcador(nuevoMarcador);
       // TODO emitir evento sockets, agregar marcador
+      this.wsService.emit('nuevo-marcador', nuevoMarcador);
     });
     for (const lugar of this.lugares) {
       this.agregarMarcador(lugar);
