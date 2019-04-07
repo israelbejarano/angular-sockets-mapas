@@ -35,6 +35,15 @@ export class MapaComponent implements OnInit {
 
   ngOnInit() {
     this.cargarMapa();
+    this.escucharSockets();
+  }
+
+  escucharSockets() {
+    // TODO marcador-nuevo
+
+    // TODO marcador-mover
+
+    // TODO marcador-borrar
   }
 
   cargarMapa() {
@@ -45,6 +54,16 @@ export class MapaComponent implements OnInit {
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     this.map = new google.maps.Map(this.mapaElement.nativeElement, mapaOpciones);
+    this.map.addListener('click', (coors) => {
+      const nuevoMarcador: Lugar = {
+        nombre: 'Nuevo lugar',
+        lat: coors.latLng.lat(),
+        lng: coors.latLng.lng(),
+        id: new Date().toISOString()
+      };
+      this.agregarMarcador(nuevoMarcador);
+      // TODO emitir evento sockets, agregar marcador
+    });
     for (const lugar of this.lugares) {
       this.agregarMarcador(lugar);
     }
