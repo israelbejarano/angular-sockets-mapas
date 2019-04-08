@@ -36,6 +36,13 @@ export class MapaComponent implements OnInit {
     // TODO marcador-mover
 
     // TODO marcador-borrar
+    this.wsService.listen('marcador-borrar').subscribe((id: string) => {
+      for (const i in this.marcadores) {
+        if (this.marcadores[i].getTitle() === id) {
+          this.marcadores[i].setMap(null);
+        }
+      }
+    });
   }
 
   cargarMapa() {
@@ -87,7 +94,7 @@ export class MapaComponent implements OnInit {
     google.maps.event.addDomListener(marker, 'dblclick', (coors: any) => {
       console.log(coors);
       marker.setMap(null);
-      // TODO disparar evento socket para borrar el marker
+      this.wsService.emit('marcador-borrar', marcador.id);
     });
     google.maps.event.addDomListener(marker, 'drag', (coors: any) => {
       const nuevoMarcador = {
